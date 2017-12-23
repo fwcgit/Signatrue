@@ -9,6 +9,7 @@ import org.ebaoquan.rop.thirdparty.com.google.common.collect.Sets;
 import com.junziqian.api.bean.Signatory;
 import com.junziqian.api.common.DealType;
 import com.junziqian.api.common.IdentityType;
+import com.junziqian.api.common.SignLevel;
 import com.junziqian.api.request.ApplySignFileRequest;
 import com.junziqian.api.response.ApplySignResponse;
 
@@ -71,18 +72,12 @@ public class SignPdf {
         System.out.println(chapteJsonArray);
         signatories.add(signatory);
 
-       /* signatory = new Signatory();
-        signatory.setFullName("文林果"); //姓名
-        signatory.setSignatoryIdentityType(IdentityType.IDCARD); //证件类型
-        signatory.setIdentityCard("5002401987041xxxxx");//证件号码
-        signatory.setMobile("153203xxxxx");
-        signatory.setOrderNum(1);
-        signatories.add(signatory);*/
+
         builder.withSignatories(signatories); // 添加签约人
-        //builder.withSignLevel(SignLevel.GENERAL.getCode()); // 签字类型,这里选择标准图形章
-        //builder.withRemark("这里是备注信息，不超过500个字符"); //备注
-        //builder.withPreRecored("前执记录，会计录到日志中！");
-        //builder.withOrderFlag(1);//1为按顺序（Signatory.orderNum），其它为不按顺序，默认不按顺序
+        builder.withSignLevel(SignLevel.GENERAL.getCode()); // 签字类型,这里选择标准图形章
+        builder.withRemark("这里是备注信息，不超过500个字符"); //备注
+        builder.withPreRecored("前执记录，会计录到日志中！");
+        builder.withOrderFlag(7);//1为按顺序（Signatory.orderNum），其它为不按顺序，默认不按顺序
         //builder.withNeedCa(1);//使用CA认证
         /**多合同顺序签约*/
         //SequenceInfo sequenceInfo=new SequenceInfo("XX001",2,2);
