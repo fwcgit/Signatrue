@@ -70,9 +70,7 @@ public class Main {
 			DownloadTask.getInstance().produce(info);
 		}
 		
-		
-		
-		
+	
 	}
 
 
