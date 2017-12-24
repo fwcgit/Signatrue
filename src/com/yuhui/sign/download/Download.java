@@ -9,6 +9,7 @@ import java.net.URL;
 import java.net.URLConnection;
 
 import com.yuhui.sign.WebApp;
+import com.yuhui.sign.db.DataBaseOpt;
 
 public class Download implements Runnable {
 
@@ -50,7 +51,7 @@ public class Download implements Runnable {
 			url = new URL(info.url);
 			conn = url.openConnection();
 			
-			File file = new File(WebApp.getInstance().dirPath+info.fileName);
+			File file = new File(info.path);
 			fos = new FileOutputStream(file);
 			is = conn.getInputStream();
 			
@@ -96,13 +97,20 @@ public class Download implements Runnable {
 			
 			if(length == fileLength) {
 				System.out.println("下载完成"+info.fileName);
+				completeDownload();
 			}else {
 				System.out.println("下载失败"+info.fileName);
 			}
 			
 		}
 		
+	}
+	
+	private void completeDownload() {
 		
+		long time = System.currentTimeMillis();
+		
+		DataBaseOpt.getInstance().insertDown(info.fileName, info.path, "", info.phone, info.idcard, time);
 	}
 	
 }
