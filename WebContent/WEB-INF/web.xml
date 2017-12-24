@@ -13,4 +13,13 @@
 		<url-pattern>/loan</url-pattern>
 	</servlet-mapping>
 
+	<servlet>
+		<servlet-name>signacallback</servlet-name>
+		<servlet-class>com.yuhui.sign.http.SignaCallback</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>signacallback</servlet-name>
+		<url-pattern>/signacallback</url-pattern>
+	</servlet-mapping>
+
 </web-app>

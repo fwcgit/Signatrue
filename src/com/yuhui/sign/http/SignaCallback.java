@@ -12,13 +12,13 @@ import javax.servlet.http.HttpServletResponse;
  * Servlet implementation class SignaCallbak
  */
 @WebServlet("/SignaCallbak")
-public class SignaCallbak extends HttpServlet {
+public class SignaCallback extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
     /**
      * Default constructor. 
      */
-    public SignaCallbak() {
+    public SignaCallback() {
         // TODO Auto-generated constructor stub
     }
 
