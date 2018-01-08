@@ -35,7 +35,6 @@ public class Loan extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		
 		InputStream is = request.getInputStream();
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		
@@ -46,6 +45,9 @@ public class Loan extends HttpServlet {
 		while(((readLength = is.read(buff))) > 0) {
 			baos.write(buff,0,readLength);
 		}
+		
+		baos.flush();
+		baos.close();
 		
 		String bodyStr = new String(baos.toByteArray(),"UTF-8");
 		

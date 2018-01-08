@@ -8,7 +8,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
-import com.yuhui.sign.WebApp;
 import com.yuhui.sign.db.DataBaseOpt;
 
 public class Download implements Runnable {
@@ -110,7 +109,7 @@ public class Download implements Runnable {
 		
 		long time = System.currentTimeMillis();
 		
-		DataBaseOpt.getInstance().insertDown(info.fileName, info.path, "", info.phone, info.idcard, time);
+		DataBaseOpt.getInstance().insertDown(info.fileName, info.path, "", info.phone, info.idcard,"1231231" ,time);
 	}
 	
 }

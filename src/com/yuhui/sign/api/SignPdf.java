@@ -12,10 +12,19 @@ import com.junziqian.api.common.IdentityType;
 import com.junziqian.api.common.SignLevel;
 import com.junziqian.api.request.ApplySignFileRequest;
 import com.junziqian.api.response.ApplySignResponse;
+import com.yuhui.sign.bean.LoanInfo;
+import com.yuhui.sign.download.DownloadInfo;
 
-public class SignPdf {
+public class SignPdf implements Runnable {
 	
-	public void signPdf(){
+	private LoanInfo loanInfo;
+	
+	public SignPdf(LoanInfo loanInfo) {
+		this.loanInfo = loanInfo;
+	}
+
+
+	private void signPdf(){
         ApplySignFileRequest.Builder builder = new ApplySignFileRequest.Builder();
         builder.withContractName("只用保全"); // 合同名称，必填
         builder.withContractAmount(20000.00); // 合同金额
@@ -64,8 +73,8 @@ public class SignPdf {
         chaptes.add(chapte);
         
         chapte=new JSONObject();
-        chapte.put("offsetX", 0.52);
-        chapte.put("offsetY", 0.75);
+        chapte.put("offsetX", 0.15);
+        chapte.put("offsetY", 0.35);
         chaptes.add(chapte);
         
         signatory.withChapteJson(chapteJsonArray);
@@ -83,6 +92,22 @@ public class SignPdf {
         //SequenceInfo sequenceInfo=new SequenceInfo("XX001",2,2);
         //builder.withSequenceInfo(sequenceInfo);
         ApplySignResponse response = JunziqianClientInit.getClient().applySignFile(builder.build());
+        
+        DownloadInfo downloadInfo = new DownloadInfo();
+        downloadInfo.fileName = response.getApplyNo();
+        downloadInfo.info = loanInfo;
+        
+	}
+
+
+	@Override
+	public void run() {
+		
+		System.out.println("开始签名--------");
+		
+		signPdf();
+		
+		System.out.println("签名结束--------");
 	}
 	
 }

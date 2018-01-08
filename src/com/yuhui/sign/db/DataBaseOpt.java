@@ -106,18 +106,20 @@ public class DataBaseOpt {
 	
 	
 	
-	public void insertLoanInfo(String name,String phone,String idcard,String data,long time){
+	public void insertLoanInfo(String name,String phone,String idcard,String data,String applyno,String signstatu, long time){
 		
 		tryConnect();
 		
-		String sql = "insert into `signatrue`.`loaninfo` (`name`, `phone`, `idcard`, `data`,`time`) values (?,?,?,?,?)";
+		String sql = "insert into `signatrue`.`loaninfo` (`name`, `phone`, `idcard`, `data`,`applyno`,`signstatu`,`time`) values (?,?,?,?,?)";
 		try {
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setString(1, name);
 			ps.setString(2, phone);
 			ps.setString(3, idcard);
 			ps.setString(4, data);
-			ps.setLong(5, time);
+			ps.setString(5, applyno);
+			ps.setString(6, signstatu);
+			ps.setLong(7, time);
 			ps.executeUpdate();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -125,11 +127,11 @@ public class DataBaseOpt {
 		}
 	}
 		
-	public void insertDown(String filename,String path,String data,String phone,String idcard,long time){
+	public void insertDown(String filename,String path,String data,String phone,String idcard,String applyno,long time){
 		
 		tryConnect();
 				
-		String sql = String.format("insert into download ( filename , path , data , phone , idcard,time) values (?,?,?,?,?,?)",tableName);
+		String sql = String.format("insert into download ( filename , path , data , phone , idcard,applyno,time) values (?,?,?,?,?,?,?)",tableName);
 		try {
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setString(1, filename);
@@ -137,7 +139,8 @@ public class DataBaseOpt {
 			ps.setString(3, data);
 			ps.setString(4, phone);
 			ps.setString(5, idcard);
-			ps.setLong(6, time);
+			ps.setString(6, idcard);
+			ps.setLong(7, time);
 			ps.executeUpdate();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block

@@ -22,4 +22,7 @@
 		<url-pattern>/signacallback</url-pattern>
 	</servlet-mapping>
 
+	<listener>
+	    <listener-class>com.yuhui.sign.WebApp</listener-class>
+	</listener>
 </web-app>

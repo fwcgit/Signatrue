@@ -4,6 +4,7 @@ import java.io.File;
 
 import org.apache.jasper.tagplugins.jstl.core.ForEach;
 
+import com.google.gson.JsonObject;
 import com.yuhui.sign.api.SignPdf;
 import com.yuhui.sign.db.DataBaseOpt;
 import com.yuhui.sign.download.DownloadInfo;
@@ -79,9 +80,14 @@ public class Main {
 //		}
 		
 		
-		System.out.println(DataBaseOpt.getInstance().query("select * from download"));
+//		System.out.println(DataBaseOpt.getInstance().query("select * from download"));
 		
-	
+		JsonObject jsonObject  = new JsonObject();
+		jsonObject.addProperty("key", "123");
+		jsonObject.addProperty("s", 123);
+		System.err.println(jsonObject.toString());
+		
+		
 	}
 
 

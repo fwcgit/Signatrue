@@ -1,20 +1,41 @@
 package com.yuhui.sign;
 
+import java.awt.Checkbox;
 import java.io.File;
 
-public class WebApp {
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
+
+import com.yuhui.sign.db.CheckDb;
+import com.yuhui.sign.db.DataBaseOpt;
+
+public class WebApp implements ServletContextListener {
 	
-	private static WebApp webApp = new WebApp();
-	
-	public static WebApp getInstance() {
-		return webApp;
+	@Override
+	public void contextDestroyed(ServletContextEvent sce) {
+		
+		System.out.println("webapp Destroyed");
+		
+		ServletContextListener.super.contextDestroyed(sce);
 	}
-	
+
+	@Override
+	public void contextInitialized(ServletContextEvent sce) {
+		
+		init();
+		
+		ServletContextListener.super.contextInitialized(sce);
+	}
+
 	public String dirPath;
 
 	public void init() {
 		
 		selectDisk();
+		
+		DataBaseOpt.getInstance();
+		
+		CheckDb.getInstance().startTimer();
 		
 	}
 	

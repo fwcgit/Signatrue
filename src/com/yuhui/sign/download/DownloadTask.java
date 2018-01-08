@@ -14,6 +14,7 @@ public class DownloadTask {
 	
 	private LinkedList<DownloadInfo> list = new LinkedList<DownloadInfo>(); 
 	
+	private DownloadTask(){}
     // 生产num个产品  
     public void produce(DownloadInfo info)  
     {  
@@ -21,7 +22,7 @@ public class DownloadTask {
         synchronized (list)  
         {  
  
-        	if(list.size()+1 < MAX_SIZE) {
+        	if(list.size() < MAX_SIZE) {
         		
         		 list.add(info);  
         		 
@@ -29,7 +30,7 @@ public class DownloadTask {
         		
         		 try  
                  {  
-                 	if(list.size()+1 >= MAX_SIZE) {
+                 	if(list.size() >= MAX_SIZE) {
                  		 // 由于条件不满足，生产阻塞  
                          list.wait();  
                  	}
