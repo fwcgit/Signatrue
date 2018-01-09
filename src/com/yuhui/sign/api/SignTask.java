@@ -10,7 +10,7 @@ public class SignTask {
 	
 	public static SignTask getInstance(){return signTask;}
 	
-	private SignTask(){}
+	private SignTask(){System.out.println("SignTask......");}
 	
 	private final int MAX_SIZE = 100;
 	
@@ -27,7 +27,9 @@ public class SignTask {
 			}else{
 				
 				try {
-					list.wait();
+					if(list.size() >= MAX_SIZE){
+						list.wait();
+					}
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}

@@ -14,7 +14,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.http.util.TextUtils;
 
 import com.google.gson.Gson;
+import com.yuhui.sign.api.SignTask;
 import com.yuhui.sign.bean.BaseResponse;
+import com.yuhui.sign.bean.LoanInfo;
+import com.yuhui.sign.db.DataBaseOpt;
 
 /**
  * Servlet implementation class LoanIno
@@ -35,6 +38,7 @@ public class Loan extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		
 		InputStream is = request.getInputStream();
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		
@@ -58,11 +62,15 @@ public class Loan extends HttpServlet {
 			baseResponse.errorCode = 800;
 			baseResponse.msg	   = "body not empty";
 			
-		
 		}else {
 			
 			baseResponse.errorCode = 0;
 			baseResponse.msg	   = "success";
+			
+			LoanInfo loanInfo = new Gson().fromJson(bodyStr, LoanInfo.class);
+			DataBaseOpt.getInstance().insertLoanInfo(loanInfo.name, loanInfo.phone, loanInfo.idcard, bodyStr, "", 0, System.currentTimeMillis());
+			
+			SignTask.getInstance().addSignTask(loanInfo);
 			
 			System.out.println("http request body = " + bodyStr);
 		}

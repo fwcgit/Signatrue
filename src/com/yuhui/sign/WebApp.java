@@ -1,13 +1,15 @@
 package com.yuhui.sign;
 
-import java.awt.Checkbox;
 import java.io.File;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
+import com.yuhui.sign.api.SignServer;
 import com.yuhui.sign.db.CheckDb;
 import com.yuhui.sign.db.DataBaseOpt;
+import com.yuhui.sign.download.DownloadServer;
+import com.yuhui.sign.utils.FileUtils;
 
 public class WebApp implements ServletContextListener {
 	
@@ -27,7 +29,7 @@ public class WebApp implements ServletContextListener {
 		ServletContextListener.super.contextInitialized(sce);
 	}
 
-	public String dirPath;
+
 
 	public void init() {
 		
@@ -36,6 +38,10 @@ public class WebApp implements ServletContextListener {
 		DataBaseOpt.getInstance();
 		
 		CheckDb.getInstance().startTimer();
+		
+		SignServer.getInstance().startSignServer();
+		
+		DownloadServer.getInstance().exectuteDownloadServer();
 		
 	}
 	
@@ -57,18 +63,13 @@ public class WebApp implements ServletContextListener {
 			
 		}
 		
-		createSaveDir(roots[index]);
+		FileUtils.createSaveDir(roots[index]);
+		
 		System.err.println("最大磁盘为"+roots[index]);
 		System.err.println("磁盘空间为"+ (size / 1024 / 1024 / 1024)+"GB");
 		
 	}
 	
 	
-	private void createSaveDir(File file) {
-		File dirFile = new File(file+"pdf\\");
-		dirFile.mkdirs();
-		dirPath = dirFile.getPath()+"\\";
-		System.err.println("文件存储路径目录"+ dirPath);
-	
-	}
+
 }

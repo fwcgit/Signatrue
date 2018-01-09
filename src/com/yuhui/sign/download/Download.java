@@ -4,10 +4,18 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 
+import org.apache.http.util.TextUtils;
+
+import com.junziqian.api.bean.Signatory;
+import com.junziqian.api.common.IdentityType;
+import com.junziqian.api.request.PresFileLinkRequest;
+import com.junziqian.api.response.SignLinkResponse;
+import com.junziqian.api.util.LogUtils;
+import com.yuhui.sign.api.JunziqianClientInit;
 import com.yuhui.sign.db.DataBaseOpt;
 
 public class Download implements Runnable {
@@ -28,52 +36,58 @@ public class Download implements Runnable {
 	@Override
 	public void run() {
 		
-		downloadFile();
+		String link = getUrlLink();
+		if(!TextUtils.isEmpty(link)){
+			downloadFile(link);
+		}
+		
 	}
 	
-	private void downloadFile() {
+	private void downloadFile(String linkUrl) {
 		
 		URL url = null;
 		
-		URLConnection conn = null;
+		HttpURLConnection conn = null;
 		
 		FileOutputStream fos = null;
 		
 		InputStream is = null;
 		
-		long fileLength = -1;
+		boolean isFail = false;
 		int readLength = -1;
-		long length = 0;
 		
 		try {
 			
-			url = new URL(info.url);
-			conn = url.openConnection();
+			url = new URL(linkUrl);
+			conn = (HttpURLConnection) url.openConnection();
+			conn.setRequestMethod("GET");
+			conn.setRequestProperty("Accept-Encoding", "identity");
 			
 			File file = new File(info.path);
 			fos = new FileOutputStream(file);
 			is = conn.getInputStream();
 			
-			fileLength = conn.getContentLength();
 			readLength = -1;
-			length = 0;
 			byte[] buff = new byte[10 * 1024];
 			
 			while((readLength = is.read(buff)) > 0) {
-				
-				length+=readLength;
-				
 				fos.write(buff, 0, readLength);
 			}
 			
 			fos.flush();
 			
+			isFail = false;
+			
 		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			
+			isFail = true;
+			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			
+			isFail = true;
+			
 		}finally {
 			
 			if(null != is) {
@@ -94,22 +108,52 @@ public class Download implements Runnable {
 				}
 			}
 			
-			if(length == fileLength) {
+			if(!isFail) {
 				System.out.println("下载完成"+info.fileName);
 				completeDownload();
 			}else {
-				System.out.println("下载失败"+info.fileName);
+				downloadFileFail();
 			}
 			
 		}
 		
 	}
 	
+	private void downloadFileFail(){
+		
+		File file = new File(info.path);
+		if(file.exists()){
+			file.delete();
+		}
+		
+		long time = System.currentTimeMillis();
+		
+		DataBaseOpt.getInstance().insertDown(info.fileName, info.path, "", info.phone, info.idcard,info.applyNo ,0,time);
+		
+		System.out.println("下载失败"+info.fileName);
+	}
+	
+	private String getUrlLink(){
+		
+		String link = "";
+		
+		PresFileLinkRequest request = new PresFileLinkRequest(); request.setApplyNo(info.applyNo); //签约编号
+		Signatory signatory = new Signatory(); //签约人信息 signatory.setFullName("张三");
+		signatory.setIdentityCard(info.idcard); signatory.setSignatoryIdentityType(IdentityType.IDCARD); request.setSignatory(signatory);
+		SignLinkResponse response = JunziqianClientInit.getClient().presFileLink(request); LogUtils.logResponse(response);
+		
+		if(response.isSuccess()){
+			link = response.getLink();
+		}
+		
+		return link;
+	}
+	
 	private void completeDownload() {
 		
 		long time = System.currentTimeMillis();
 		
-		DataBaseOpt.getInstance().insertDown(info.fileName, info.path, "", info.phone, info.idcard,"1231231" ,time);
+		DataBaseOpt.getInstance().insertDown(info.fileName, info.path, "", info.phone, info.idcard,info.applyNo ,1,time);
 	}
 	
 }

@@ -21,8 +21,18 @@ import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.pdf.PdfWriter;
+import com.yuhui.sign.bean.LoanInfo;
+import com.yuhui.sign.utils.FileUtils;
 
 public class CreatePdf {
+	
+	private LoanInfo loanInfo;
+	
+	public CreatePdf(LoanInfo loanInfo) {
+		super();
+		this.loanInfo = loanInfo;
+	}
+
 	public void createPdfFile(){
 		
 		Rectangle rect = new Rectangle(PageSize.A4);
@@ -30,7 +40,7 @@ public class CreatePdf {
 		Document document = new Document(rect, 20, 20, 20, 20);
 		
 		try {
-			PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream("./res/xy.pdf"));
+			PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(FileUtils.dirOldPath+""+loanInfo.idcard+".pdf"));
 			writer.setPdfVersion(PdfWriter.PDF_VERSION_1_2);
 			
 			//文档属性  

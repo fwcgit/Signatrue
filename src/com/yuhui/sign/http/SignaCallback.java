@@ -1,25 +1,23 @@
 package com.yuhui.sign.http;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Collection;
 import java.util.Enumeration;
-import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.Part;
-
-import org.apache.commons.io.IOUtils;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.junziqian.api.bean.ResultInfo;
+import com.yuhui.sign.db.DataBaseOpt;
+import com.yuhui.sign.download.DownloadInfo;
+import com.yuhui.sign.download.DownloadTask;
+import com.yuhui.sign.utils.FileUtils;
 
 /**
  * Servlet implementation class SignaCallbak
@@ -63,6 +61,26 @@ public class SignaCallback extends HttpServlet {
 		if(!jsonStr.equals("{}")){
 			
 			CallBackInfo callBackInfo = gson.fromJson(jsonObject, CallBackInfo.class);
+			
+			DownloadInfo downloadInfo = new DownloadInfo();
+			downloadInfo.applyNo  = callBackInfo.applyNo;
+			downloadInfo.fileName = callBackInfo.applyNo;
+			downloadInfo.fullName = callBackInfo.fullName;
+			downloadInfo.idcard   = callBackInfo.identityCard;
+			downloadInfo.path	  = FileUtils.dirPath+callBackInfo.applyNo+".pdf";
+			
+			JsonArray jsonArray = DataBaseOpt.getInstance().queryJson("select phone from loaninfo where applyno = '" + callBackInfo.applyNo+"'");
+			
+			if(jsonArray.size() > 0 ){
+				
+				JsonObject jsonLoan = jsonArray.get(0).getAsJsonObject();
+				
+				String phone = jsonLoan.get("phone").getAsString();
+				
+				downloadInfo.phone = phone;
+			}
+			
+			DownloadTask.getInstance().produce(downloadInfo);
 			
 			os.write(gson.toJson(ResultInfo.create().success()).toString().getBytes("UTF-8"));
 		

@@ -19,6 +19,8 @@ public class SignServer implements Runnable {
 	
 	public void startSignServer(){
 		
+		if(isRun) return;
+		
 		isRun  = true;
 		thread = new Thread(this);
 		thread.start();
@@ -42,7 +44,7 @@ public class SignServer implements Runnable {
 	@Override
 	public void run() {
 		
-		if(isRun){
+		while(isRun){
 			
 			LoanInfo loanInfo = SignTask.getInstance().getSignTast();
 			

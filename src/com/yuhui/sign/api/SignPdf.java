@@ -13,7 +13,9 @@ import com.junziqian.api.common.SignLevel;
 import com.junziqian.api.request.ApplySignFileRequest;
 import com.junziqian.api.response.ApplySignResponse;
 import com.yuhui.sign.bean.LoanInfo;
-import com.yuhui.sign.download.DownloadInfo;
+import com.yuhui.sign.db.DataBaseOpt;
+import com.yuhui.sign.pdf.CreatePdf;
+import com.yuhui.sign.utils.FileUtils;
 
 public class SignPdf implements Runnable {
 	
@@ -29,7 +31,7 @@ public class SignPdf implements Runnable {
         builder.withContractName("只用保全"); // 合同名称，必填
         builder.withContractAmount(20000.00); // 合同金额
         //1、本地文件方式
-        builder.withFile("./res/xy.pdf");
+        builder.withFile(FileUtils.dirOldPath+""+loanInfo.idcard+".pdf");
         builder.withServerCa(1);
         builder.withDealType(DealType.AUTH_SIGN);
         //2、字节流方式
@@ -50,10 +52,10 @@ public class SignPdf implements Runnable {
         builder.withForceAuthentication(1);
         HashSet<Signatory> signatories = Sets.newHashSet();
         Signatory signatory = new Signatory();
-        signatory.setFullName("易凡翔"); //姓名
+        signatory.setFullName(loanInfo.name); //姓名
         signatory.setSignatoryIdentityType(IdentityType.IDCARD); //证件类型
-        signatory.setIdentityCard("500240198704146355"); //证件号码
-        signatory.setMobile("15320369150");
+        signatory.setIdentityCard(loanInfo.idcard); //证件号码
+        signatory.setMobile(loanInfo.phone);
         signatory.setOrderNum(1);
         //set=new TreeSet<Integer>();
         //set.add(AuthLevel.FACE.getCode());
@@ -91,12 +93,12 @@ public class SignPdf implements Runnable {
         /**多合同顺序签约*/
         //SequenceInfo sequenceInfo=new SequenceInfo("XX001",2,2);
         //builder.withSequenceInfo(sequenceInfo);
+        
         ApplySignResponse response = JunziqianClientInit.getClient().applySignFile(builder.build());
         
-        DownloadInfo downloadInfo = new DownloadInfo();
-        downloadInfo.fileName = response.getApplyNo();
-        downloadInfo.info = loanInfo;
-        
+        if(response.isSuccess()){
+            DataBaseOpt.getInstance().updateLoanInfo(response.getApplyNo(), 0,loanInfo.phone );
+        }
 	}
 
 
@@ -104,6 +106,9 @@ public class SignPdf implements Runnable {
 	public void run() {
 		
 		System.out.println("开始签名--------");
+		
+		CreatePdf createPdf = new CreatePdf(loanInfo);
+		createPdf.createPdfFile();
 		
 		signPdf();
 		

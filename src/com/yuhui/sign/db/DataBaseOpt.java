@@ -105,12 +105,27 @@ public class DataBaseOpt {
 	}
 	
 	
-	
-	public void insertLoanInfo(String name,String phone,String idcard,String data,String applyno,String signstatu, long time){
+	public void updateLoanInfo(String applyno,int signstatu,String phone){
 		
 		tryConnect();
 		
-		String sql = "insert into `signatrue`.`loaninfo` (`name`, `phone`, `idcard`, `data`,`applyno`,`signstatu`,`time`) values (?,?,?,?,?)";
+		String sql = "UPDATE loaninfo set applyno = '%s',signstatu = '%d' where phone = '%s'";
+		sql = String.format(sql, applyno,signstatu,phone);
+		
+		try {
+			Statement st = conn.prepareStatement(sql);
+			st.executeUpdate(sql);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void insertLoanInfo(String name,String phone,String idcard,String data,String applyno,int signstatu, long time){
+		
+		tryConnect();
+		
+		String sql = "insert into `signatrue`.`loaninfo` (`name`, `phone`, `idcard`, `data`,`applyno`,`signstatu`,`time`) values (?,?,?,?,?,?,?)";
 		try {
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setString(1, name);
@@ -118,7 +133,7 @@ public class DataBaseOpt {
 			ps.setString(3, idcard);
 			ps.setString(4, data);
 			ps.setString(5, applyno);
-			ps.setString(6, signstatu);
+			ps.setInt(6, signstatu);
 			ps.setLong(7, time);
 			ps.executeUpdate();
 		} catch (SQLException e) {
@@ -127,11 +142,11 @@ public class DataBaseOpt {
 		}
 	}
 		
-	public void insertDown(String filename,String path,String data,String phone,String idcard,String applyno,long time){
+	public void insertDown(String filename,String path,String data,String phone,String idcard,String applyno,int download,long time){
 		
 		tryConnect();
 				
-		String sql = String.format("insert into download ( filename , path , data , phone , idcard,applyno,time) values (?,?,?,?,?,?,?)",tableName);
+		String sql = String.format("insert into download ( filename , path , data , phone , idcard,applyno,download,time) values (?,?,?,?,?,?,?,?)",tableName);
 		try {
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setString(1, filename);
@@ -139,8 +154,9 @@ public class DataBaseOpt {
 			ps.setString(3, data);
 			ps.setString(4, phone);
 			ps.setString(5, idcard);
-			ps.setString(6, idcard);
-			ps.setLong(7, time);
+			ps.setString(6, applyno);
+			ps.setInt(7, download);
+			ps.setLong(8, time);
 			ps.executeUpdate();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block

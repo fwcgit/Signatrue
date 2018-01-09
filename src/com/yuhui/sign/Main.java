@@ -4,8 +4,13 @@ import java.io.File;
 
 import org.apache.jasper.tagplugins.jstl.core.ForEach;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.yuhui.sign.api.SignPdf;
+import com.yuhui.sign.api.SignServer;
+import com.yuhui.sign.api.SignTask;
+import com.yuhui.sign.bean.LoanInfo;
+import com.yuhui.sign.db.CheckDb;
 import com.yuhui.sign.db.DataBaseOpt;
 import com.yuhui.sign.download.DownloadInfo;
 import com.yuhui.sign.download.DownloadServer;
@@ -82,12 +87,32 @@ public class Main {
 		
 //		System.out.println(DataBaseOpt.getInstance().query("select * from download"));
 		
-		JsonObject jsonObject  = new JsonObject();
-		jsonObject.addProperty("key", "123");
-		jsonObject.addProperty("s", 123);
-		System.err.println(jsonObject.toString());
 		
+		DataBaseOpt.getInstance();
 		
+//		CheckDb.getInstance().startTimer();
+//		
+//		SignServer.getInstance().startSignServer();
+//		
+//		DownloadServer.getInstance().exectuteDownloadServer();
+//		
+//		LoanInfo loanInfo = new LoanInfo();
+//		loanInfo.name = "张三";
+//		loanInfo.phone = "13100009999";
+//		loanInfo.idcard = "320929329832983923";
+//		DataBaseOpt.getInstance().insertLoanInfo(loanInfo.name, loanInfo.phone, loanInfo.idcard, "", "", 0, System.currentTimeMillis());
+//		
+//		SignTask.getInstance().addSignTask(loanInfo);
+//		
+//		DownloadInfo downloadInfo = new DownloadInfo();
+//		downloadInfo.applyNo  = "32928038042";
+//		downloadInfo.fileName = "32928038042";
+//		downloadInfo.fullName = "张三";
+//		downloadInfo.idcard   = "320929329832983923";
+//		DownloadTask.getInstance().produce(downloadInfo);
+		
+		String json  = DataBaseOpt.getInstance().query("select phone from loaninfo where applyno = '" + "APL950648301110312960"+"'");
+		System.out.println(json);
 	}
 
 

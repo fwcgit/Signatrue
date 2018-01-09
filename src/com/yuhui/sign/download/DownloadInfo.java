@@ -1,12 +1,12 @@
 package com.yuhui.sign.download;
 
-import com.yuhui.sign.bean.LoanInfo;
-
 public class DownloadInfo {
-
-	public String url;
+	
+	public String applyNo;
 	
 	public String fileName;
+	
+	public String fullName;
 	
 	public String phone;
 	
@@ -14,12 +14,11 @@ public class DownloadInfo {
 	
 	public String path;
 	
-	public LoanInfo info;
-
 	@Override
 	public String toString() {
-		return "DownloadInfo [url=" + url + ", fileName=" + fileName + "]";
+		return "DownloadInfo [applyNo=" + applyNo + ", fileName=" + fileName + ", fullName=" + fullName + ", phone="
+				+ phone + ", idcard=" + idcard + ", path=" + path + "]";
 	}
-	
+
 	
 }
