@@ -6,4 +6,5 @@ public class BaseResponse {
 	
 	public String msg;
 	
+	public Object data;
 }

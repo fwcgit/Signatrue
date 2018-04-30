@@ -45,6 +45,14 @@ public class Download implements Runnable {
 	
 	private void downloadFile(String linkUrl) {
 		
+		PresFileLinkRequest request = new PresFileLinkRequest(); 
+		request.setApplyNo(info.applyNo); //签约编号
+		Signatory signatory = new Signatory(); //签约人信息 
+		signatory.setFullName(info.fullName);
+		signatory.setIdentityCard(info.idcard); 
+		signatory.setSignatoryIdentityType(IdentityType.IDCARD); request.setSignatory(signatory);
+		SignLinkResponse response = JunziqianClientInit.getClient().presFileLink(request);
+		
 		URL url = null;
 		
 		HttpURLConnection conn = null;
@@ -58,12 +66,16 @@ public class Download implements Runnable {
 		
 		try {
 			
-			url = new URL(linkUrl);
+			url = new URL(response.getLink());
 			conn = (HttpURLConnection) url.openConnection();
 			conn.setRequestMethod("GET");
 			conn.setRequestProperty("Accept-Encoding", "identity");
 			
 			File file = new File(info.path);
+			if(file.exists()) {
+				System.out.println("文件已经存在");
+				return;
+			}
 			fos = new FileOutputStream(file);
 			is = conn.getInputStream();
 			
@@ -128,7 +140,7 @@ public class Download implements Runnable {
 		
 		long time = System.currentTimeMillis();
 		
-		DataBaseOpt.getInstance().insertDown(info.fileName, info.path, "", info.phone, info.idcard,info.applyNo ,0,time);
+		DataBaseOpt.getInstance().insertDown(info.fileName, info.path, "", info.phone, info.idcard,info.applyNo ,0,info.type,time);
 		
 		System.out.println("下载失败"+info.fileName);
 	}
@@ -153,7 +165,7 @@ public class Download implements Runnable {
 		
 		long time = System.currentTimeMillis();
 		
-		DataBaseOpt.getInstance().insertDown(info.fileName, info.path, "", info.phone, info.idcard,info.applyNo ,1,time);
+		DataBaseOpt.getInstance().insertDown(info.fileName, info.path, "", info.phone, info.idcard,info.applyNo ,1,info.type,time);
 	}
 	
 }

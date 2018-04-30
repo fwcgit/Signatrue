@@ -7,7 +7,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.http.util.TextUtils;
@@ -22,6 +24,7 @@ import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.yuhui.sign.bean.LoanInfo;
+import com.yuhui.sign.db.DataBaseOpt;
 import com.yuhui.sign.utils.FileUtils;
 
 public class CreatePdf {
@@ -32,105 +35,8 @@ public class CreatePdf {
 		super();
 		this.loanInfo = loanInfo;
 	}
-
-	public void createPdfFile(){
-		
-		Rectangle rect = new Rectangle(PageSize.A4);
-		rect.setBackgroundColor(BaseColor.WHITE);
-		Document document = new Document(rect, 20, 20, 20, 20);
-		
-		try {
-			PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(FileUtils.dirOldPath+""+loanInfo.idcard+".pdf"));
-			writer.setPdfVersion(PdfWriter.PDF_VERSION_1_2);
-			
-			//文档属性  
-			document.addTitle("应急卡借款协议");  
-			document.addAuthor("协议");  
-			document.addSubject("禹微");  
-			document.addKeywords("应急卡");  
-			document.addCreator("协议");  
-			
-			document.open();
-			
-			//Paragraph paragraph = new Paragraph();
-			
-			List<String> listLines = readOldXy();
-			
-			for(int i = 0 ; i < listLines.size() ; i++){
-				String str = listLines.get(i);
-				str = str.replaceAll("YI_NAME", "张三");
-				str = str.replaceAll("YI_ID_NUMBER", "12348927492379427");
-				str = str.replaceAll("YI_PHONE", "13167118362");
-				str = str.replaceAll("YI_EMAIL", "19379274W@QQ.com");
-				
-				str = str.replaceAll("RECEIVE_BANK_CARD", "3200932938284792739847924");
-				str = str.replaceAll("RECEIVE_NAME", "张三");
-				
-				str = str.replaceAll("B_MONEY", "600");
-				str = str.replaceAll("START_DATE", "2017年10月17日");
-				str = str.replaceAll("END_DATE", "2017年10月26日");
-				str = str.replaceAll("DAY", "10");
-				str = str.replaceAll("YI_MONEY", "600");
-				
-				Font font = null;
-				if(str.startsWith("2.1 借款本金")  || 
-					str.startsWith("2.3费用") ||
-					str.startsWith("在本协议中") ||
-					str.startsWith("2.3.1 居间") ||
-					str.startsWith("款特殊情况沟通等")||
-					str.startsWith("方支付 居间服务费及借款服务费")||
-					str.startsWith("A：手机验证费") ||
-					str.startsWith("B：平台运营费") ||
-					str.startsWith("4.1.1 一次划转") ||
-					str.startsWith("4.2 乙方同意")||
-					str.startsWith("4.3 若乙方未")||
-					str.startsWith("5.1.1 自应还款日") ||
-					str.startsWith("本金的正常利息停止计算")||
-					str.startsWith("（1）根据本协议") ||
-					str.startsWith("5.4 乙方应严格") ||
-					str.startsWith("5.5 乙方应严格") ||
-					str.startsWith("议提交衢州仲裁委员会仲裁")||
-					str.startsWith("的裁决为终局裁决")||
-					str.startsWith("达地址。如")||
-					str.startsWith("约定邮箱或手机号码")||
-					str.startsWith("仲裁文书电子送达")||
-					str.startsWith("仲裁委员会网络仲裁平台")||
-					str.startsWith("11.2 本协议各方") ||
-					str.startsWith("第三方支付公司上海富友")||
-					str.startsWith("账费用由乙方承担")||
-					str.startsWith("乙方认可借款本")||
-					str.startsWith("款项至丙方账户，由")||
-					str.startsWith("乙双方均同意并确认")||
-					str.startsWith("自身名义向乙方追讨")){
-					
-					font = getChineseFont(true);
-					
-				}else{
-					font = getChineseFont(false);
-				}
-				
-				if(i > 0 && i % 60 == 0){
-					document.newPage();
-				}
-				
-				document.add(new Paragraph(str,font));
-		
-			}
-			
-			document.close();
-			
-			System.err.println("生成完成。。。。。");
-			
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (DocumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
 	
-	private List<String> readOldXy(){
+	private List<String> readMMOldXy(){
 		
 		List<String> listLines = new ArrayList<String>();
 		
@@ -138,7 +44,143 @@ public class CreatePdf {
 		
 		try {
 			
-			FileInputStream fis = new FileInputStream("./res/xy.txt");
+			FileInputStream fis = new FileInputStream("./res/mm.txt");
+			br = new BufferedReader(new InputStreamReader(fis, "UTF-8"));
+			
+			String line = null;
+			
+			while((line = br.readLine()) != null){
+				
+				if(TextUtils.isEmpty(line)){
+					listLines.add("\r\n");
+				}
+				
+				listLines.add(line);
+			}
+			
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}finally{
+			if(null != br){
+				try {
+					br.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		return listLines;
+	}
+	
+	private List<String> readMM2OldXy(){
+		
+		List<String> listLines = new ArrayList<String>();
+		
+		BufferedReader br = null;
+		
+		try {
+			
+			FileInputStream fis = new FileInputStream("./res/mm2.txt");
+			br = new BufferedReader(new InputStreamReader(fis, "UTF-8"));
+			
+			String line = null;
+			
+			while((line = br.readLine()) != null){
+				
+				if(TextUtils.isEmpty(line)){
+					listLines.add("\r\n");
+				}
+				
+				listLines.add(line);
+			}
+			
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}finally{
+			if(null != br){
+				try {
+					br.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		return listLines;
+	}
+	
+	
+	private List<String> readZPOldXy(){
+		
+		List<String> listLines = new ArrayList<String>();
+		
+		BufferedReader br = null;
+		
+		try {
+			
+			FileInputStream fis = new FileInputStream("./res/zp.txt");
+			br = new BufferedReader(new InputStreamReader(fis, "UTF-8"));
+			
+			String line = null;
+			
+			while((line = br.readLine()) != null){
+				
+				if(TextUtils.isEmpty(line)){
+					listLines.add("\r\n");
+				}
+				
+				listLines.add(line);
+			}
+			
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}finally{
+			if(null != br){
+				try {
+					br.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		return listLines;
+	}
+	
+	private List<String> readZP2OldXy(){
+		
+		List<String> listLines = new ArrayList<String>();
+		
+		BufferedReader br = null;
+		
+		try {
+			
+			FileInputStream fis = new FileInputStream("./res/zp2.txt");
 			br = new BufferedReader(new InputStreamReader(fis, "UTF-8"));
 			
 			String line = null;
@@ -193,4 +235,305 @@ public class CreatePdf {
         return fontChinese;
     }
 	
+    public void createMMPdfFile(){
+    	Rectangle rect = new Rectangle(PageSize.A4);
+		rect.setBackgroundColor(BaseColor.WHITE);
+		Document document = new Document(rect, 20, 20, 20, 20);
+		
+		try {
+			PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(FileUtils.dirOldPath+"mm"+loanInfo.idCard+".pdf"));
+			writer.setPdfVersion(PdfWriter.PDF_VERSION_1_2);
+			
+			//文档属性  
+			document.addTitle("手机买卖合同");  
+			document.addAuthor("合同");  
+			document.addSubject("禹微");  
+			document.addKeywords("急借白卡");  
+			document.addCreator("合同");  
+			
+			document.open();
+			
+			//Paragraph paragraph = new Paragraph();
+			
+			List<String> listLines = readMMOldXy();
+			Font font = getChineseFont(false);
+			for(int i = 0 ; i < listLines.size() ; i++){
+				String str = listLines.get(i);
+				str = str.replaceAll("MF_NAME", loanInfo.name);
+				str = str.replaceAll("MF_IDCARD",loanInfo.idCard);
+				str = str.replaceAll("MF_ZS", loanInfo.address);
+				str = str.replaceAll("MF_PHONE", loanInfo.cellphone);
+				str = str.replaceAll("PP", loanInfo.deviceName);
+				str = str.replaceAll("XH", loanInfo.deviceType);
+				str = str.replaceAll("IMEI", loanInfo.deviceID);
+				
+				String jiegeStr = String.format("%.2f", loanInfo.jieKuanJinE);
+				
+				str = str.replaceAll("JIAGE", jiegeStr);
+				str = str.replaceAll("DX_PRICE", numberConvertWord(jiegeStr)+"元整");
+				str = str.replaceAll("SIGN_DATE", dateConvert(loanInfo.jieKuanRiQi));
+				str = str.replaceAll("FK_TIME", dateConvert(loanInfo.fangKuanShiJian));
+				str = str.replaceAll("HK_PRICE", loanInfo.jieKuanJinE+"");
+				str = str.replaceAll("KAIHUHANG", loanInfo.bankName);
+				str = str.replaceAll("BANK_CARD", loanInfo.bankCard);
+				str = str.replaceAll("MF_MEIAL", loanInfo.email);
+
+				
+				if(i > 0 && i % 90 == 0){
+					document.newPage();
+				}
+				
+				document.add(new Paragraph(str,font));
+		
+			}
+			
+			document.close();
+			
+			System.err.println("生成完成。。。。。");
+			
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (DocumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    }
+    
+    public void createZPPdfFile(){
+    	Rectangle rect = new Rectangle(PageSize.A4);
+		rect.setBackgroundColor(BaseColor.WHITE);
+		Document document = new Document(rect, 20, 20, 20, 20);
+		
+		try {
+			PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(FileUtils.dirOldPath+"zp"+loanInfo.idCard+".pdf"));
+			writer.setPdfVersion(PdfWriter.PDF_VERSION_1_2);
+			
+			//文档属性  
+			document.addTitle("手机租赁合同");  
+			document.addAuthor("合同");  
+			document.addSubject("禹微");  
+			document.addKeywords("急借白卡");  
+			document.addCreator("合同");  
+			
+			document.open();
+			
+			//Paragraph paragraph = new Paragraph();
+			
+			List<String> listLines = readZPOldXy();
+			Font font = getChineseFont(false);
+			for(int i = 0 ; i < listLines.size() ; i++){
+				String str = listLines.get(i);
+				
+				if(str.contains("合同编号： HT_ID")) {
+					str = str.replaceAll("HT_ID", DataBaseOpt.getInstance().getHeTongNumber());
+	    		}
+				
+				str = str.replaceAll("CZ_NAME", loanInfo.name);
+				str = str.replaceAll("CZ_IDCARD", loanInfo.idCard);
+				str = str.replaceAll("CZ_ZS", loanInfo.address);
+				str = str.replaceAll("CZ_PHONE", loanInfo.cellphone);
+				str = str.replaceAll("CZ_EMAIL", loanInfo.email);
+				str = str.replaceAll("PP", loanInfo.deviceName);
+				str = str.replaceAll("XH", loanInfo.deviceType);
+				str = str.replaceAll("IMEI", loanInfo.deviceID);
+				str = str.replaceAll("SIGN_DATE", dateConvert(loanInfo.jieKuanRiQi));
+				
+				float jiage = loanInfo.jieKuanJinE * 0.95f;
+				String jiegeStr = String.format("%.2f", jiage);
+//				+"(大写:"+numberConvertWord(jiegeStr)+")"
+				str = str.replaceAll("CANZHI_PRICE", jiegeStr);
+				str = str.replaceAll("RI_PRICE", String.format("%.2f", loanInfo.jieKuanJinE * 0.01f));
+				str = str.replaceAll("START_DATE", dateConvert(loanInfo.jieKuanRiQi));
+				str = str.replaceAll("END_DATE", dateConvert(loanInfo.huanKuanRiQi));
+				str = str.replaceAll("LAST_DATE", dateConvert(loanInfo.huanKuanRiQi+24*60*60*1000));
+				str = str.replaceAll("XZ_JIAGE", String.format("%.2f", loanInfo.jieKuanJinE * 0.01f));
+							
+				if(i > 0 && i % 90 == 0){
+					document.newPage();
+				}
+				
+				document.add(new Paragraph(str,font));
+		
+			}
+			
+			document.close();
+			
+			System.err.println("生成完成。。。。。");
+			
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (DocumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    }
+    
+    public static String numberConvertWord(String number) {
+    	String word[] = {"零","壹","贰","叁","肆","伍","陆","柒","捌","玖","拾","佰","仟","万"};
+    	String word1[] = {"角","分"};
+    	
+    	StringBuffer sb = new StringBuffer();
+    	
+    	if(number.indexOf(".") >= 0) {
+    		
+    		String[] ns = number.split("\\.");
+    		String n1 = ns[0];
+    		String n2 = ns[1];
+    		
+    		for(int i = n1.length()-1,j = 0 ; i >= 0 ;i--,j++) {
+        		
+        		int unit = i+9;
+        		String str = n1.substring(j, j+1);
+        		
+        		if(!str.equals("0")) {
+        			sb.append(word[Integer.valueOf(str)]);
+        			if(unit >= 10)
+        				sb.append(word[unit]);
+        		}
+        	}
+    		
+    		for(int i = n2.length()-1,j = 0 ; i >= 0 ;i--,j++) {
+        		
+        		String str = n2.substring(j, j+1);
+        		
+        		if(!str.equals("0")) {
+        			sb.append(word[Integer.valueOf(str)]);
+        			sb.append(word1[j]);
+        		}
+        	}
+        	
+    	}else {
+        	for(int i = number.length()-1,j = 0 ; i >= 0 ;i--,j++) {
+        		
+        		int unit = i+9;
+        		String str = number.substring(j, j+1);
+        		
+        		if(!str.equals("0")) {
+        			sb.append(word[Integer.valueOf(str)]);
+        			if(unit >= 10)
+        				sb.append(word[unit]);
+        		}
+        	}
+    	}
+    	
+
+    	return sb.toString();
+    }
+    
+    public String getMMHtml() {
+    	
+    	List<String> list = readMM2OldXy();
+    	StringBuffer sb = new StringBuffer();
+    	sb.append("<!DOCTYPE html>");
+    	sb.append("<html>");
+    	sb.append("<head>");
+    	sb.append("<meta charset=\"utf-8\">");
+    	sb.append("<title>手机买卖协议</title>");
+    	sb.append("</head>");
+    	sb.append("<body>");
+    	
+    	for (String str : list) {
+    		
+			str = str.replaceAll("MF_NAME", loanInfo.name);
+			str = str.replaceAll("MF_IDCARD",loanInfo.idCard);
+			str = str.replaceAll("MF_ZS", loanInfo.address);
+			str = str.replaceAll("MF_PHONE", loanInfo.cellphone);
+			str = str.replaceAll("PP", loanInfo.deviceName);
+			str = str.replaceAll("XH", loanInfo.deviceType);
+			str = str.replaceAll("IMEI", loanInfo.deviceID);
+			
+			String jiegeStr = String.format("%.2f", loanInfo.jieKuanJinE);
+			
+			str = str.replaceAll("JIAGE", jiegeStr);
+			str = str.replaceAll("DX_PRICE", numberConvertWord(jiegeStr)+"元整");
+			str = str.replaceAll("SIGN_DATE", dateConvert(loanInfo.jieKuanRiQi));
+			str = str.replaceAll("FK_TIME", dateConvert(loanInfo.fangKuanShiJian));
+			str = str.replaceAll("HK_PRICE", loanInfo.jieKuanJinE+"");
+			str = str.replaceAll("KAIHUHANG", loanInfo.bankName);
+			str = str.replaceAll("BANK_CARD", loanInfo.bankCard);
+			str = str.replaceAll("MF_MEIAL", loanInfo.email);
+			
+			sb.append("<p>"+str+"</p>");
+		}
+    	
+    	sb.append("</body>");
+    	sb.append("</html>");
+    	
+    	return sb.toString();
+    }
+    
+    public String getZPHtml() {
+    	
+    	List<String> list = readZP2OldXy();
+    	StringBuffer sb = new StringBuffer();
+    	sb.append("<!DOCTYPE html>");
+    	sb.append("<html>");
+    	sb.append("<head>");
+    	sb.append("<meta charset=\"utf-8\">");
+    	sb.append("<title>手机租赁协议</title>");
+    	sb.append("</head>");
+    	sb.append("<body>");
+    	
+    	for (String str : list) {
+    		if(str.contains("合同编号： HT_ID") || TextUtils.isEmpty(str)) {
+    			continue;
+    		}
+//    		str = str.replaceAll("HT_ID", DataBaseOpt.getInstance().getHeTongNumber());
+			str = str.replaceAll("CZ_NAME", loanInfo.name);
+			str = str.replaceAll("CZ_IDCARD", loanInfo.idCard);
+			str = str.replaceAll("CZ_ZS", loanInfo.address);
+			str = str.replaceAll("CZ_PHONE", loanInfo.cellphone);
+			str = str.replaceAll("CZ_EMAIL", loanInfo.email);
+			str = str.replaceAll("PP", loanInfo.deviceName);
+			str = str.replaceAll("XH", loanInfo.deviceType);
+			str = str.replaceAll("IMEI", loanInfo.deviceID);
+			str = str.replaceAll("SIGN_DATE", dateConvert(loanInfo.jieKuanRiQi));
+			
+			float jiage = loanInfo.jieKuanJinE * 0.95f;
+			String jiegeStr = String.format("%.2f", jiage);
+//			+"(大写:"+numberConvertWord(jiegeStr)+")"
+			str = str.replaceAll("CANZHI_PRICE", jiegeStr);
+			str = str.replaceAll("RI_PRICE", String.format("%.2f", loanInfo.jieKuanJinE * 0.01f));
+			str = str.replaceAll("START_DATE", dateConvert(loanInfo.jieKuanRiQi));
+			str = str.replaceAll("END_DATE", dateConvert(loanInfo.huanKuanRiQi));
+			str = str.replaceAll("LAST_DATE", dateConvert(loanInfo.huanKuanRiQi+24*60*60*1000));
+			str = str.replaceAll("XZ_JIAGE", String.format("%.2f", loanInfo.jieKuanJinE * 0.01f));
+			
+			sb.append("<p>"+str+"</p>");
+		}
+    	
+    	sb.append("</body>");
+    	sb.append("</html>");
+    	
+    	return sb.toString();
+    }
+    
+    public static String dateConvert(long time) {
+    	SimpleDateFormat format = new SimpleDateFormat("yyyy 年 MM 月 dd 日");
+    	return format.format(new Date(time));
+    }
+    
+    public static void main(String[] args) {
+    
+		LoanInfo loanInfo = new LoanInfo();
+		loanInfo.name = "线三";
+		loanInfo.idCard = "123123213213";
+		loanInfo.cellphone = "1234567890";
+		loanInfo.address = "sh";
+		loanInfo.email = "dsfs@qq.com";
+		loanInfo.bankName = "招商银行";
+		loanInfo.bankCard = "9988838298329382";
+		loanInfo.deviceID = "sdjfljd";
+		loanInfo.deviceName = "xiaomi";
+		loanInfo.deviceType = "mimimi";
+		loanInfo.jieKuanJinE = 1000f;
+		loanInfo.jieKuanRiQi = System.currentTimeMillis();
+		loanInfo.fangKuanShiJian = loanInfo.jieKuanRiQi;
+		loanInfo.huanKuanRiQi = loanInfo.fangKuanShiJian + 15 * 24 * 60 * 60 * 1000;
+		
+		CreatePdf createPdf = new CreatePdf(loanInfo);
+		createPdf.getZPHtml();
+	}
 }

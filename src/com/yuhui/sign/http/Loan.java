@@ -55,6 +55,8 @@ public class Loan extends HttpServlet {
 		
 		String bodyStr = new String(baos.toByteArray(),"UTF-8");
 		
+		System.out.println("http request body = " + bodyStr);
+		
 		BaseResponse baseResponse = new BaseResponse();
 		
 		if(TextUtils.isEmpty(bodyStr)) {
@@ -67,12 +69,25 @@ public class Loan extends HttpServlet {
 			baseResponse.errorCode = 0;
 			baseResponse.msg	   = "success";
 			
-			LoanInfo loanInfo = new Gson().fromJson(bodyStr, LoanInfo.class);
-			DataBaseOpt.getInstance().insertLoanInfo(loanInfo.name, loanInfo.phone, loanInfo.idcard, bodyStr, "", 0, System.currentTimeMillis());
+			CallBackLoanInfo callBackLoanInfo = new Gson().fromJson(bodyStr, CallBackLoanInfo.class);
+			LoanInfo loanInfo = callBackLoanInfo.result;
+			loanInfo.huanKuanRiQi = loanInfo.jieKuanRiQi+(loanInfo.jieKuanTianShu-1)*24*60*60*1000;
+			
+			DataBaseOpt.getInstance().insertLoanInfo(loanInfo.name, loanInfo.cellphone, loanInfo.idCard, bodyStr, "", 0, 1,System.currentTimeMillis());
+			
+			loanInfo.type = 1;
+			
+			CallBackLoanInfo callBackLoanInfo1 = new Gson().fromJson(bodyStr, CallBackLoanInfo.class);
+			LoanInfo loanInfo1 = callBackLoanInfo1.result;
+			loanInfo1.huanKuanRiQi = loanInfo.jieKuanRiQi+(loanInfo.jieKuanTianShu-1)*24*60*60*1000;
+			
+			DataBaseOpt.getInstance().insertLoanInfo(loanInfo.name, loanInfo.cellphone, loanInfo.idCard, bodyStr, "", 0, 2,System.currentTimeMillis());
+
+			loanInfo1.type = 2;
 			
 			SignTask.getInstance().addSignTask(loanInfo);
+			SignTask.getInstance().addSignTask(loanInfo1);
 			
-			System.out.println("http request body = " + bodyStr);
 		}
 		
 		String json = new Gson().toJson(baseResponse);

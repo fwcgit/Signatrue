@@ -1,28 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns="http://java.sun.com/xml/ns/javaee"
-	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
-	id="WebApp_ID" version="3.0">
-	<display-name>LoanSign</display-name>
-	<servlet>
-		<servlet-name>loan</servlet-name>
-		<servlet-class>com.yuhui.sign.http.Loan</servlet-class>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>loan</servlet-name>
-		<url-pattern>/loan</url-pattern>
-	</servlet-mapping>
-
-	<servlet>
-		<servlet-name>signacallback</servlet-name>
-		<servlet-class>com.yuhui.sign.http.SignaCallback</servlet-class>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>signacallback</servlet-name>
-		<url-pattern>/signacallback</url-pattern>
-	</servlet-mapping>
-
-	<listener>
-	    <listener-class>com.yuhui.sign.WebApp</listener-class>
-	</listener>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" id="WebApp_ID" version="3.0">
+  <display-name>LoanSign</display-name>
+  <servlet>
+    <servlet-name>loan</servlet-name>
+    <servlet-class>com.yuhui.sign.http.Loan</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>loan</servlet-name>
+    <url-pattern>/loan</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+    <servlet-name>downloadPdf</servlet-name>
+    <servlet-class>com.yuhui.sign.http.DownloadPdf</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>downloadPdf</servlet-name>
+    <url-pattern>/downloadPdf</url-pattern>
+  </servlet-mapping>
+  
+    <servlet>
+    <servlet-name>getSignPdf</servlet-name>
+    <servlet-class>com.yuhui.sign.http.GetSignPdf</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>getSignPdf</servlet-name>
+    <url-pattern>/getSignPdf</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+    <servlet-name>signacallback</servlet-name>
+    <servlet-class>com.yuhui.sign.http.SignaCallback</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>signacallback</servlet-name>
+    <url-pattern>/signacallback</url-pattern>
+  </servlet-mapping>
+  <listener>
+    <listener-class>com.yuhui.sign.WebApp</listener-class>
+  </listener>
 </web-app>

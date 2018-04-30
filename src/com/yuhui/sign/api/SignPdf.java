@@ -26,78 +26,160 @@ public class SignPdf implements Runnable {
 	}
 
 
-	private void signPdf(){
+	private void signMMPdf(){
         ApplySignFileRequest.Builder builder = new ApplySignFileRequest.Builder();
-        builder.withContractName("只用保全"); // 合同名称，必填
-        builder.withContractAmount(20000.00); // 合同金额
+        builder.withContractName("手机买卖合同"); // 合同名称，必填
+        builder.withContractAmount((double) loanInfo.jieKuanJinE); // 合同金额
         //1、本地文件方式
-        builder.withFile(FileUtils.dirOldPath+""+loanInfo.idcard+".pdf");
+        builder.withFile(FileUtils.dirOldPath+ "mm"+loanInfo.idCard+".pdf");
         builder.withServerCa(1);
         builder.withDealType(DealType.AUTH_SIGN);
-        //2、字节流方式
-        //File file = new File("D:\\tmp\\买卖合同.pdf");
-        //builder.withFile(file.getName(), FileCopyUtils.copyToByteArray(file)); //合同文件
-
-        //目前仅支持无认证、身份证认证、银行卡认证、USBKEY认证
-        //builder.withAuthenticationLevel(AuthenticationLevel.NONE.getCode()); //签约时，需要的身份认证级别
-        //TreeSet<Integer> set=new TreeSet<Integer>();
-        //builder.withFaceThreshold(64);
-        //set.add(AuthLevel.FACE.getCode());
-        //set.add(AuthLevel.BANKTHREE.getCode());
-        //builder.withAuthLevel(set);
-        /**
-         * 0 只需第一次认证过，后面不用认证
-         * 1 每次签约都要认证
-         */
-        builder.withForceAuthentication(1);
+ 
         HashSet<Signatory> signatories = Sets.newHashSet();
+        
         Signatory signatory = new Signatory();
         signatory.setFullName(loanInfo.name); //姓名
         signatory.setSignatoryIdentityType(IdentityType.IDCARD); //证件类型
-        signatory.setIdentityCard(loanInfo.idcard); //证件号码
-        signatory.setMobile(loanInfo.phone);
-        signatory.setOrderNum(1);
-        //set=new TreeSet<Integer>();
-        //set.add(AuthLevel.FACE.getCode());
-        //signatory.setAuthLevel(set);
-        //[{"page":0,","chaptes":[{"offsetX":0.12,"offsetY":0.23}]},{"page":1,"chaptes":[{"offsetX":0.45,"offsetY":0.67}]}]
+        signatory.setIdentityCard(loanInfo.idCard); //证件号码
+        signatory.setMobile(loanInfo.cellphone);
+        signatory.setOrderNum(2);
+        
         JSONArray chapteJsonArray=new JSONArray();
         
         JSONObject pageJson=new JSONObject();
-        pageJson.put("page", 7);
+        pageJson.put("page", 1);
         JSONArray chaptes=new JSONArray();
         pageJson.put("chaptes", chaptes);
         chapteJsonArray.add(pageJson);
         
         JSONObject chapte=new JSONObject();
-        chapte.put("offsetX", 0.15);
-        chapte.put("offsetY", 0.238);
+        chapte.put("offsetX", 0.08);
+        chapte.put("offsetY", 0.18);
         chaptes.add(chapte);
+         
+        signatory.withChapteJson(chapteJsonArray);
+        signatory.setSignLevel(1);
+        signatories.add(signatory);
+       
+        //-----------------
+        chapteJsonArray=new JSONArray();
+        
+        pageJson=new JSONObject();
+        pageJson.put("page", 1);
+        chaptes=new JSONArray();
+        pageJson.put("chaptes", chaptes);
+        chapteJsonArray.add(pageJson);
         
         chapte=new JSONObject();
-        chapte.put("offsetX", 0.15);
-        chapte.put("offsetY", 0.35);
+        chapte.put("offsetX", 0.65);
+        chapte.put("offsetY", 0.26);
         chaptes.add(chapte);
         
-        signatory.withChapteJson(chapteJsonArray);
-        System.out.println(chapteJsonArray);
-        signatories.add(signatory);
+	  signatory = new Signatory();
+	  signatory.setFullName("上海禹徽资产管理有限公司"); //姓名 
+	  signatory.setSignatoryIdentityType(IdentityType.BIZLIC); //证件类型 
+	  signatory.setIdentityCard("91310120MA1HKP1F0K");//证件号码(营业执照号或统一社会信用代码) 
+	  signatory.setEmail("916020238@qq.com");//企业账户注册邮箱
+	  signatory.setOrderNum(1);
+	  
+	  signatory.withChapteJson(chapteJsonArray);
+	  signatory.setSignLevel(0);
+	  signatories.add(signatory);
 
 
         builder.withSignatories(signatories); // 添加签约人
         builder.withSignLevel(SignLevel.GENERAL.getCode()); // 签字类型,这里选择标准图形章
         builder.withRemark("这里是备注信息，不超过500个字符"); //备注
         builder.withPreRecored("前执记录，会计录到日志中！");
-        builder.withOrderFlag(7);//1为按顺序（Signatory.orderNum），其它为不按顺序，默认不按顺序
+        builder.withOrderFlag(1);//1为按顺序（Signatory.orderNum），其它为不按顺序，默认不按顺序
         //builder.withNeedCa(1);//使用CA认证
         /**多合同顺序签约*/
         //SequenceInfo sequenceInfo=new SequenceInfo("XX001",2,2);
         //builder.withSequenceInfo(sequenceInfo);
         
         ApplySignResponse response = JunziqianClientInit.getClient().applySignFile(builder.build());
+
+        if(response.isSuccess()){
+            DataBaseOpt.getInstance().updateLoanInfo(response.getApplyNo(),loanInfo.idCard,1,0);
+        }
+	}
+	
+	private void signZPPdf(){
+        ApplySignFileRequest.Builder builder = new ApplySignFileRequest.Builder();
+        builder.withContractName("手机租赁合同"); // 合同名称，必填
+        builder.withContractAmount((double) loanInfo.jieKuanJinE); // 合同金额
+        //1、本地文件方式
+        builder.withFile(FileUtils.dirOldPath+"zp"+loanInfo.idCard+".pdf");
+        builder.withServerCa(1);
+        builder.withDealType(DealType.AUTH_SIGN);
+        
+        HashSet<Signatory> signatories = Sets.newHashSet();
+        
+        Signatory signatory = new Signatory();
+        signatory.setFullName(loanInfo.name); //姓名
+        signatory.setSignatoryIdentityType(IdentityType.IDCARD); //证件类型
+        signatory.setIdentityCard(loanInfo.idCard); //证件号码
+        signatory.setMobile(loanInfo.cellphone);
+        signatory.setOrderNum(2);
+
+        JSONArray chapteJsonArray=new JSONArray();
+        
+        JSONObject pageJson=new JSONObject();
+        pageJson.put("page", 1);
+        JSONArray chaptes=new JSONArray();
+        pageJson.put("chaptes", chaptes);
+        chapteJsonArray.add(pageJson);
+        
+        JSONObject chapte=new JSONObject();
+        chapte.put("offsetX", 0.08);
+        chapte.put("offsetY", 0.81);
+        chaptes.add(chapte);
+               
+        signatory.withChapteJson(chapteJsonArray);
+        signatory.setSignLevel(1);
+        signatories.add(signatory);
+        
+        
+        //-----------------
+        chapteJsonArray=new JSONArray();
+        
+        pageJson=new JSONObject();
+        pageJson.put("page", 1);
+        chaptes=new JSONArray();
+        pageJson.put("chaptes", chaptes);
+        chapteJsonArray.add(pageJson);
+        
+        chapte=new JSONObject();
+        chapte.put("offsetX", 0.7);
+        chapte.put("offsetY", 0.91);
+        chaptes.add(chapte);
+        
+	  signatory = new Signatory();
+	  signatory.setFullName("上海禹徽资产管理有限公司"); //姓名 
+	  signatory.setSignatoryIdentityType(IdentityType.BIZLIC); //证件类型 
+	  signatory.setIdentityCard("91310120MA1HKP1F0K");//证件号码(营业执照号或统一社会信用代码) 
+	  signatory.setEmail("916020238@qq.com");//企业账户注册邮箱
+	  signatory.setOrderNum(1);
+	  
+	  signatory.withChapteJson(chapteJsonArray);
+	  signatory.setSignLevel(0);
+	  signatories.add(signatory);
+
+
+        builder.withSignatories(signatories); // 添加签约人
+        builder.withSignLevel(SignLevel.GENERAL.getCode()); // 签字类型,这里选择标准图形章
+        builder.withRemark("这里是备注信息，不超过500个字符"); //备注
+        builder.withPreRecored("前执记录，会计录到日志中！");
+        builder.withOrderFlag(1);//1为按顺序（Signatory.orderNum），其它为不按顺序，默认不按顺序
+        //builder.withNeedCa(1);//使用CA认证
+        /**多合同顺序签约*/
+        //SequenceInfo sequenceInfo=new SequenceInfo("XX001",2,2);
+        //builder.withSequenceInfo(sequenceInfo);
+
+        ApplySignResponse response = JunziqianClientInit.getClient().applySignFile(builder.build());
         
         if(response.isSuccess()){
-            DataBaseOpt.getInstance().updateLoanInfo(response.getApplyNo(), 0,loanInfo.phone );
+            DataBaseOpt.getInstance().updateLoanInfo(response.getApplyNo(),loanInfo.idCard,2,0);
         }
 	}
 
@@ -108,10 +190,14 @@ public class SignPdf implements Runnable {
 		System.out.println("开始签名--------");
 		
 		CreatePdf createPdf = new CreatePdf(loanInfo);
-		createPdf.createPdfFile();
-		
-		signPdf();
-		
+		if(loanInfo.type == 1) {
+			createPdf.createMMPdfFile();
+			signMMPdf();
+		}else {
+			createPdf.createZPPdfFile();
+			signZPPdf();
+		}
+	
 		System.out.println("签名结束--------");
 	}
 	

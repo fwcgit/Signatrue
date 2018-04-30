@@ -13,7 +13,7 @@ import com.google.gson.JsonObject;
 
 
 public class DataBaseOpt {
-	private static final String URL = "jdbc:mysql://139.196.104.98:3306/signatrue?autoReconnect=true";
+	private static final String URL = "jdbc:mysql://139.196.104.98:3306/signatrue?autoReconnect=true&useUnicode=true&characterEncoding=UTF-8";
 	private static final String DRIVER = "com.mysql.jdbc.Driver";
 	private static final String user = "root";
 	private static final String pwd = "zxc,.888";
@@ -105,12 +105,12 @@ public class DataBaseOpt {
 	}
 	
 	
-	public void updateLoanInfo(String applyno,int signstatu,String phone){
+	public void updateLoanInfo(String applyno,String idcard,int type,int signstatu){
 		
 		tryConnect();
 		
-		String sql = "UPDATE loaninfo set applyno = '%s',signstatu = '%d' where phone = '%s'";
-		sql = String.format(sql, applyno,signstatu,phone);
+		String sql = "UPDATE loaninfo set applyno = '%s' where idcard = '%s' and type= '%s' and signstatu = '%d'";
+		sql = String.format(sql, applyno,idcard,type,signstatu);
 		
 		try {
 			Statement st = conn.prepareStatement(sql);
@@ -121,11 +121,11 @@ public class DataBaseOpt {
 		}
 	}
 	
-	public void insertLoanInfo(String name,String phone,String idcard,String data,String applyno,int signstatu, long time){
+	public void insertLoanInfo(String name,String phone,String idcard,String data,String applyno,int signstatu,int type, long time){
 		
 		tryConnect();
 		
-		String sql = "insert into `signatrue`.`loaninfo` (`name`, `phone`, `idcard`, `data`,`applyno`,`signstatu`,`time`) values (?,?,?,?,?,?,?)";
+		String sql = "insert into `signatrue`.`loaninfo` (`name`, `phone`, `idcard`, `data`,`applyno`,`signstatu`,`type`,`time`) values (?,?,?,?,?,?,?,?)";
 		try {
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setString(1, name);
@@ -134,7 +134,8 @@ public class DataBaseOpt {
 			ps.setString(4, data);
 			ps.setString(5, applyno);
 			ps.setInt(6, signstatu);
-			ps.setLong(7, time);
+			ps.setLong(7, type);
+			ps.setLong(8, time);
 			ps.executeUpdate();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -142,11 +143,11 @@ public class DataBaseOpt {
 		}
 	}
 		
-	public void insertDown(String filename,String path,String data,String phone,String idcard,String applyno,int download,long time){
+	public void insertDown(String filename,String path,String data,String phone,String idcard,String applyno,int download,int type,long time){
 		
 		tryConnect();
 				
-		String sql = String.format("insert into download ( filename , path , data , phone , idcard,applyno,download,time) values (?,?,?,?,?,?,?,?)",tableName);
+		String sql = String.format("insert into download ( filename , path , data , phone , idcard,applyno,download,type,time) values (?,?,?,?,?,?,?,?,?)",tableName);
 		try {
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setString(1, filename);
@@ -156,7 +157,8 @@ public class DataBaseOpt {
 			ps.setString(5, idcard);
 			ps.setString(6, applyno);
 			ps.setInt(7, download);
-			ps.setLong(8, time);
+			ps.setLong(8, type);
+			ps.setLong(9, time);
 			ps.executeUpdate();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -178,6 +180,85 @@ public class DataBaseOpt {
 		}
 	}
 	
+	public synchronized String  getHeTongNumber() {
+		
+		tryConnect();
+		
+		String sql = "select * from hetong_number";
+		int res = 0;
+		PreparedStatement ps = null;;
+		try {
+			ps = conn.prepareStatement(sql);
+			ResultSet rs = ps.executeQuery();
+			rs.next();
+			res = rs.getInt("number_id");
+			
+//			String result = createJson(rs);
+//			
+//			System.out.println(result);
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		String str = "00"+res;
+		++res;
+		
+		if(ps != null) {
+			try {
+				ps.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		String sqlNumber = "UPDATE hetong_number set number_id = %s";
+		sqlNumber = String.format(sqlNumber,res);
+		Statement st = null;
+		try {
+			st = conn.prepareStatement(sqlNumber);
+			st.executeUpdate(sqlNumber);
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}finally {
+			if(null != st)
+				try {
+					st.close();
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+		}
+		
+		return str;
+		
+	}
+	
+	public void updateLoaninfoSignstatu(String id) {
+		
+		String sqlNumber = "UPDATE loaninfo set signstatu = %s where id=%s";
+		sqlNumber = String.format(sqlNumber,"3",id);
+		Statement st = null;
+		try {
+			st = conn.prepareStatement(sqlNumber);
+			st.executeUpdate(sqlNumber);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}finally {
+			if(null != st)
+				try {
+					st.close();
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+		}
+		
+	}
 	public void updateAccess(int count,String ip,String phone){
 		
 		tryConnect();

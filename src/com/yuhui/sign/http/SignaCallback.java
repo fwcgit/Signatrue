@@ -62,25 +62,72 @@ public class SignaCallback extends HttpServlet {
 			
 			CallBackInfo callBackInfo = gson.fromJson(jsonObject, CallBackInfo.class);
 			
-			DownloadInfo downloadInfo = new DownloadInfo();
-			downloadInfo.applyNo  = callBackInfo.applyNo;
-			downloadInfo.fileName = callBackInfo.applyNo;
-			downloadInfo.fullName = callBackInfo.fullName;
-			downloadInfo.idcard   = callBackInfo.identityCard;
-			downloadInfo.path	  = FileUtils.dirPath+callBackInfo.applyNo+".pdf";
+			if(callBackInfo.signStatus != 3 ) {
+				System.out.println("状态" +callBackInfo.signStatus);
+				os.write(gson.toJson(ResultInfo.create().success()).toString().getBytes("UTF-8"));
+				os.close();
+				return;
+			}
 			
-			JsonArray jsonArray = DataBaseOpt.getInstance().queryJson("select phone from loaninfo where applyno = '" + callBackInfo.applyNo+"'");
+			DownloadInfo downloadInfo = null;
+			
+			JsonArray jsonArray = DataBaseOpt.getInstance().queryJson("select * from loaninfo where "
+					+ "idcard='"+callBackInfo.identityCard+"' and type=1 and signstatu=0 and applyno="+"'"+callBackInfo.applyNo+"'");
 			
 			if(jsonArray.size() > 0 ){
 				
-				JsonObject jsonLoan = jsonArray.get(0).getAsJsonObject();
+				JsonObject jsonLoan = lastJson(jsonArray);
 				
-				String phone = jsonLoan.get("phone").getAsString();
+				DataBaseOpt.getInstance().updateLoaninfoSignstatu(jsonLoan.get("id").getAsString());
 				
-				downloadInfo.phone = phone;
+				if(jsonLoan.has("phone")) {
+					
+					String phone = jsonLoan.get("phone").getAsString();
+					
+					downloadInfo = new DownloadInfo();
+					downloadInfo.applyNo  = callBackInfo.applyNo;
+					downloadInfo.fileName = callBackInfo.applyNo;
+					downloadInfo.fullName = callBackInfo.fullName;
+					downloadInfo.idcard   = callBackInfo.identityCard;
+					downloadInfo.identityType = callBackInfo.identityType;
+					downloadInfo.path	  = FileUtils.dirPath+callBackInfo.applyNo+".pdf";
+					downloadInfo.phone = phone;
+					downloadInfo.type = 1;
+					
+					DownloadTask.getInstance().produce(downloadInfo);
+				}
+
+			}else {
+				
+				jsonArray = DataBaseOpt.getInstance().queryJson("select * from loaninfo where "
+						+ "idcard='"+callBackInfo.identityCard+"' and type=2 and signstatu=0 and applyno="+"'"+callBackInfo.applyNo+"'");
+				
+				if(jsonArray.size() > 0 ){
+					
+					JsonObject jsonLoan = lastJson(jsonArray);
+					
+					DataBaseOpt.getInstance().updateLoaninfoSignstatu(jsonLoan.get("id").getAsString());
+					
+					if(jsonLoan.has("phone")) {
+						
+						String phone = jsonLoan.get("phone").getAsString();
+						
+						downloadInfo = new DownloadInfo();
+						downloadInfo.applyNo  = callBackInfo.applyNo;
+						downloadInfo.fileName = callBackInfo.applyNo;
+						downloadInfo.fullName = callBackInfo.fullName;
+						downloadInfo.idcard   = callBackInfo.identityCard;
+						downloadInfo.identityType = callBackInfo.identityType;
+						downloadInfo.path	  = FileUtils.dirPath+callBackInfo.applyNo+".pdf";
+						downloadInfo.phone = phone;
+						downloadInfo.type = 2;
+						
+						DownloadTask.getInstance().produce(downloadInfo);
+					}
+
+				}
+				
 			}
-			
-			DownloadTask.getInstance().produce(downloadInfo);
 			
 			os.write(gson.toJson(ResultInfo.create().success()).toString().getBytes("UTF-8"));
 		
@@ -93,5 +140,26 @@ public class SignaCallback extends HttpServlet {
 		os.flush();
 		os.close();
 	}
+	
+	private JsonObject lastJson(JsonArray jsonArray) {
+		
+		JsonObject obj = new JsonObject();
+		obj = jsonArray.get(0).getAsJsonObject();
+		long time = jsonArray.get(0).getAsJsonObject().get("time").getAsLong();
+		
+		for(int i = 0 ;i < jsonArray.size();i++) {
+			JsonObject tempJson = jsonArray.get(i).getAsJsonObject();
+			if(time < tempJson.get("time").getAsLong()) {
+				obj = tempJson;
+			}
+		}
+		return obj;
+	}
+	
 
+	public static void main(String[] args) {
+		JsonArray jsonArray = DataBaseOpt.getInstance().queryJson("select phone from loaninfo where "
+				+ "idcard='"+"412326199708156027"+"' and type=2 and signstatu=1");
+		System.out.println(jsonArray.toString());
+	}
 }

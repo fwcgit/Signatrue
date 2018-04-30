@@ -1,20 +1,16 @@
 package com.yuhui.sign;
 
-import java.io.File;
-
-import org.apache.jasper.tagplugins.jstl.core.ForEach;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.yuhui.sign.api.SignPdf;
 import com.yuhui.sign.api.SignServer;
 import com.yuhui.sign.api.SignTask;
 import com.yuhui.sign.bean.LoanInfo;
 import com.yuhui.sign.db.CheckDb;
 import com.yuhui.sign.db.DataBaseOpt;
-import com.yuhui.sign.download.DownloadInfo;
 import com.yuhui.sign.download.DownloadServer;
-import com.yuhui.sign.download.DownloadTask;
+import com.yuhui.sign.http.CallBackLoanInfo;
 import com.yuhui.sign.pdf.CreatePdf;
 
 //测试环境key和接口地址：
@@ -43,7 +39,6 @@ public class Main {
 //		new CreatePdf().createPdfFile();
 //		new SignPdf().signPdf();
 		
-//		WebApp.getInstance().init();
 //		
 //		String[] dUrl = new String[] {
 //				"https://ss3.baidu.com/9fo3dSag_xI4khGko9WTAnF6hhy/image/h%3D300/sign=0b1159175382b2b7b89f3fc401adcb0a/d009b3de9c82d15866ea98a28a0a19d8bc3e42bd.jpg",
@@ -88,7 +83,7 @@ public class Main {
 //		System.out.println(DataBaseOpt.getInstance().query("select * from download"));
 		
 		
-		DataBaseOpt.getInstance();
+//		DataBaseOpt.getInstance();
 		
 //		CheckDb.getInstance().startTimer();
 //		
@@ -98,7 +93,7 @@ public class Main {
 //		
 //		LoanInfo loanInfo = new LoanInfo();
 //		loanInfo.name = "张三";
-//		loanInfo.phone = "13100009999";
+//		loanInfo.phone = "322234444343";
 //		loanInfo.idcard = "320929329832983923";
 //		DataBaseOpt.getInstance().insertLoanInfo(loanInfo.name, loanInfo.phone, loanInfo.idcard, "", "", 0, System.currentTimeMillis());
 //		
@@ -111,12 +106,87 @@ public class Main {
 //		downloadInfo.idcard   = "320929329832983923";
 //		DownloadTask.getInstance().produce(downloadInfo);
 		
-		String json  = DataBaseOpt.getInstance().query("select phone from loaninfo where applyno = '" + "APL950648301110312960"+"'");
-		System.out.println(json);
+//		String json  = DataBaseOpt.getInstance().query("select phone from loaninfo where applyno = '" + "APL950648301110312960"+"'");
+//		System.out.println(json);
+		
+
+		
+		DataBaseOpt.getInstance();
+		
+		CheckDb.getInstance().startTimer();
+		
+		SignServer.getInstance().startSignServer();
+		
+		DownloadServer.getInstance().exectuteDownloadServer();
+		
+		DataBaseOpt.getInstance().getHeTongNumber();
+		
+//		String bodyStr = "{\r\n" + 
+//				"	\"module\": \"getborrow-by-id\",\r\n" + 
+//				"	\"errorCode\": 0,\r\n" + 
+//				"	\"errorMsg\": \"\",\r\n" + 
+//				"	\"prompt\": false,\r\n" + 
+//				"	\"result\": {\r\n" + 
+//				"		\"borrowId\": 11,\r\n" + 
+//				"		\"accountId\": 270027,\r\n" + 
+//				"		\"idCard\": \"513823198812230029\",\r\n" + 
+//				"		\"cellphone\": \"13795532123\",\r\n" + 
+//				"		\"name\": \"周泳霖\",\r\n" + 
+//				"		\"address\":\"sh\",\r\n" + 
+//				"		\"email\":\"dss@QQ.com\",\r\n" + 
+//				"		\"bankName\":\"zsyh\",\r\n" + 
+//				"		\"jieKuanRiQi\": 1503889434000,\r\n" + 
+//				"		\"jieKuanJinE\": 600,\r\n" + 
+//				"		\"jieKuanTianShu\": 15,\r\n" + 
+//				"		\"jieKuanZhuangTai\": 3,\r\n" + 
+//				"		\"jieKuanZhuangTaiChangeTime\": 1505174503000,\r\n" + 
+//				"		\"huanKuanRiQi\": 1505174503000,\r\n" + 
+//				"		\"huanKuanJinE\": 641.86,\r\n" + 
+//				"		\"huanKuanYiChang\": 0,\r\n" + 
+//				"		\"huanKuanOverdue\": 1,\r\n" + 
+//				"		\"huanKuanDeadline\": 1505145600,\r\n" + 
+//				"		\"huanKuanXinXi\": \"{\\\"MCHNTORDERID\\\":\\\"11_60785133\\\",\\\"SIGN\\\":\\\"e1ea5145492429bf82ed29ead2471c59\\\",\\\"MCHNTCD\\\":\\\"0002900F0395202\\\",\\\"BANKCARD\\\":\\\"6215582313001610188\\\",\\\"VERSION\\\":\\\"2.0\\\",\\\"RESPONSECODE\\\":\\\"0000\\\",\\\"ORDERID\\\":\\\"001320474139\\\",\\\"RESPONSEMSG\\\":\\\"成功\\\",\\\"AMT\\\":\\\"64186\\\",\\\"TYPE\\\":\\\"02\\\"}\",\r\n" + 
+//				"		\"fangKuanShiJian\": 1503889829000,\r\n" + 
+//				"		\"fangKuanFangShi\": 2,\r\n" + 
+//				"		\"cuiKuanRenId\": null,\r\n" + 
+//				"		\"cuiKuanRenName\": null,\r\n" + 
+//				"		\"useJiangLi\": 0,\r\n" + 
+//				"		\"genBlacklist\": 0,\r\n" + 
+//				"		\"inBlacklist\": 1,\r\n" + 
+//				"		\"frozen\": 0,\r\n" + 
+//				"		\"huaiZhang\": 0,\r\n" + 
+//				"		\"bankCard\": \"6215582313001610188\",\r\n" + 
+//				"		\"huanKuanShangHuDingDanHao\": \"11_60785133\",\r\n" + 
+//				"		\"huanKuanFuYouDingDanHao\": \"001320474139\",\r\n" + 
+//				"		\"fangKuanFuyouLiuShuiHao\": \"510200631034\",\r\n" + 
+//				"		\"xuZu\": 0,\r\n" + 
+//				"		\"deviceName\": \"xiaomi\",\r\n" + 
+//				"		\"sysVersion\": null,\r\n" + 
+//				"		\"deviceType\": \"mi6\",\r\n" + 
+//				"		\"deviceId\": \"12131231312\",\r\n" + 
+//				"		\"appName\": null,\r\n" + 
+//				"		\"appId\": null\r\n" + 
+//				"	}\r\n" + 
+//				"}";
+//		
+//		CallBackLoanInfo callBackLoanInfo = new Gson().fromJson(bodyStr, CallBackLoanInfo.class);
+//		LoanInfo loanInfo = callBackLoanInfo.result;
+//		
+//		DataBaseOpt.getInstance().insertLoanInfo(loanInfo.name, loanInfo.cellphone, loanInfo.idCard, bodyStr, "", 0, 1,System.currentTimeMillis());
+//		
+//		loanInfo.type = 1;
+//		SignTask.getInstance().addSignTask(loanInfo);
+		
+		
+//		CallBackLoanInfo callBackLoanInfo1 = new Gson().fromJson(bodyStr, CallBackLoanInfo.class);
+//		LoanInfo loanInfo1 = callBackLoanInfo1.result;
+//		
+//		DataBaseOpt.getInstance().insertLoanInfo(loanInfo.name, loanInfo.cellphone, loanInfo.idCard, bodyStr, "", 0, 2,System.currentTimeMillis());
+//
+//		loanInfo1.type = 2;
+//		SignTask.getInstance().addSignTask(loanInfo1);
+		
+//		System.out.println("http request body = " + bodyStr);
+		
 	}
-
-
-	
-
-	
 }

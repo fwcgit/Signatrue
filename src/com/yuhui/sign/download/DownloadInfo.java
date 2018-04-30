@@ -14,6 +14,10 @@ public class DownloadInfo {
 	
 	public String path;
 	
+	public String identityType;
+	
+	public int type;
+	
 	@Override
 	public String toString() {
 		return "DownloadInfo [applyNo=" + applyNo + ", fileName=" + fileName + ", fullName=" + fullName + ", phone="
